@@ -1,0 +1,98 @@
+openapi: 3.0.3
+info:
+  title: Event Planner API
+  version: 1.0.0
+  description: REST APIs for Event Planner application.
+servers:
+  - url: http://localhost:8080
+paths:
+  /auth/login:
+    post:
+      summary: Login user
+      description: Authenticate user with username and password.
+      parameters:
+        - name: username
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: password
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Login successful
+        "401":
+          description: Invalid credentials
+
+  /auth/signup:
+    post:
+      summary: Register user
+      description: Create a new user account with required details.
+      parameters:
+        - name: username
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: password
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: email
+          in: query
+          required: true
+          schema:
+            type: string
+            format: email
+        - name: mobileNumber
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: securityQuestion
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: answer
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Signup successful
+  /auth/reset-password:
+    post:
+      summary: Reset password using security question
+      description: Reset user password after validating security question and answer.
+      parameters:
+        - name: username
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: securityQuestion
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: answer
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: newPassword
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Password successfully reset, please login.
+        "400":
+          description: Invalid security question answer

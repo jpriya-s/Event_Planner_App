@@ -1,0 +1,14 @@
+{
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Spring Boot-EventPlannerApplication<event-planner>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "com.priya.eventplanner.event_planner.EventPlannerApplication",
+            "projectName": "event-planner",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
+        }
+    ]
+}
