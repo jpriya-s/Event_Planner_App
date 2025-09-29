@@ -5,6 +5,7 @@ info:
   description: REST APIs for Event Planner application.
 servers:
   - url: http://localhost:8080
+
 paths:
   /auth/login:
     post:
@@ -31,41 +32,16 @@ paths:
     post:
       summary: Register user
       description: Create a new user account with required details.
-      parameters:
-        - name: username
-          in: query
-          required: true
-          schema:
-            type: string
-        - name: password
-          in: query
-          required: true
-          schema:
-            type: string
-        - name: email
-          in: query
-          required: true
-          schema:
-            type: string
-            format: email
-        - name: mobileNumber
-          in: query
-          required: true
-          schema:
-            type: string
-        - name: securityQuestion
-          in: query
-          required: true
-          schema:
-            type: string
-        - name: answer
-          in: query
-          required: true
-          schema:
-            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserDetailsDTO'
       responses:
         "200":
           description: Signup successful
+
   /auth/reset-password:
     post:
       summary: Reset password using security question
@@ -96,3 +72,134 @@ paths:
           description: Password successfully reset, please login.
         "400":
           description: Invalid security question answer
+
+  /events/getAllEvents:
+    get:
+      summary: Get all events for a user
+      description: Retrieves all events for a given user with optional sorting.
+      parameters:
+        - name: userId
+          in: query
+          required: true
+          schema:
+            type: integer
+        - name: sortOrder
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [asc, desc]
+            default: desc
+      responses:
+        "200":
+          description: List of events
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/EventDTO'
+
+  /events/create:
+    post:
+      summary: Create event
+      description: Create a new event with details.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EventDTO'
+      responses:
+        "200":
+          description: Event created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EventDTO'
+
+  /events/update/{eventId}:
+    put:
+      summary: Update event
+      description: Update details of an existing event.
+      parameters:
+        - name: eventId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EventDTO'
+      responses:
+        "200":
+          description: Event updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EventDTO'
+        "404":
+          description: Event not found
+
+  /events/delete/{eventId}:
+    delete:
+      summary: Delete event
+      description: Delete an event by its ID.
+      parameters:
+        - name: eventId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Event deleted successfully
+        "404":
+          description: Event not found
+components:
+  schemas:
+    UserDetailsDTO:
+      type: object
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+        email:
+          type: string
+          format: email
+        mobileNumber:
+          type: string
+        firstName:
+          type: string
+        lastName:
+          type: string
+        securityQuestion:
+          type: string
+        answer:
+          type: string
+        notificationMethod:
+          type: string
+          enum: [EMAIL, SMS, NONE]
+
+    EventDTO:
+      type: object
+      properties:
+        eventId:
+          type: integer
+        eventName:
+          type: string
+        eventDescription:
+          type: string
+        startTime:
+          type: string
+          format: date-time
+        endTime:
+          type: string
+          format: date-time
+        notificationInterval:
+          type: string
+          description: Interval description (e.g., "10 minutes before", "1 hour before")

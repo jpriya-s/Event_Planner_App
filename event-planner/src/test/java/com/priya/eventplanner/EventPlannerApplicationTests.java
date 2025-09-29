@@ -1,4 +1,4 @@
-package com.priya.eventplanner.event_planner;
+package com.priya.eventplanner;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
