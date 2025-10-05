@@ -4,6 +4,8 @@ import com.priya.eventplanner.dto.UserDetailsDTO;
 import com.priya.eventplanner.model.NotificationMethod;
 import com.priya.eventplanner.model.UserDetails;
 import com.priya.eventplanner.repository.UserDetailsRepository;
+
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -15,9 +17,11 @@ import java.util.Optional;
 public class LoginService {
 
     private final UserDetailsRepository userDetailsRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    public LoginService(UserDetailsRepository userDetailsRepository) {
+    public LoginService(UserDetailsRepository userDetailsRepository, PasswordEncoder passwordEncoder) {
         this.userDetailsRepository = userDetailsRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     /**
@@ -26,10 +30,14 @@ public class LoginService {
     public String login(String username, String password) {
         Optional<UserDetails> userOpt = userDetailsRepository.findByUsername(username);
 
-        if (userOpt.isPresent() && userOpt.get().getPassword().equals(password)) {
-            return "Login successful for " + username + ".";
+        if (userOpt.isPresent()) {
+            UserDetails user = userOpt.get();
+            if (passwordEncoder.matches(password, user.getPassword())) {
+                return "Login successful for " + username + ".";
+            }
+            return "Invalid password.";
         }
-        return "Invalid username or password.";
+        return "User not found.";
     }
 
     /**
@@ -43,10 +51,12 @@ public class LoginService {
             return "Username already exists.";
         }
 
+        String hashedPassword = passwordEncoder.encode(userDetailsDTO.getPassword());
+
         // Convert DTO → Entity
         UserDetails user = UserDetails.builder()
                 .username(userDetailsDTO.getUsername())
-                .password(userDetailsDTO.getPassword())
+                .password(hashedPassword)
                 .email(userDetailsDTO.getEmail())
                 .mobileNumber(userDetailsDTO.getMobileNumber())
                 .firstName(userDetailsDTO.getFirstName())
@@ -73,7 +83,7 @@ public class LoginService {
             UserDetails user = userOpt.get();
             if (user.getSecurityQuestion().equals(securityQuestion) &&
                 user.getAnswer().equals(answer)) {
-                user.setPassword(newPassword);
+                user.setPassword(passwordEncoder.encode(newPassword));  // hash new password
                 userDetailsRepository.save(user);
                 return "Password successfully reset for " + username + ".";
             }
